@@ -28,9 +28,10 @@ jobs:
       - name: Generate Ebiten Android AAR
         env:
           GOTOOLCHAIN: local
+          EBITENMOBILE_GOMOBILE: v0.0.0-20260211053402-5ba0159d437a
         run: |
           go version
-          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.4 bind \
+          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.9 bind \
             -target android \
             -androidapi 23 \
             -javapkg com.oceancatch.mobile \
