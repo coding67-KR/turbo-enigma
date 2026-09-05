@@ -20,17 +20,19 @@ jobs:
           java-version: '17'
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK packages
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+          yes | sdkmanager --licenses >/dev/null || true
       - name: Download Go modules
         run: go mod download
       - name: Generate Ebiten Android AAR
         run: |
-          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.3 bind \
+          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.4 bind \
             -target android \
             -androidapi 23 \
             -javapkg com.oceancatch.mobile \
             -o app/libs/oceancatch.aar \
-            github.com/coding67-KR/ocean-catch/mobile
+            ./mobile
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -40,6 +42,7 @@ jobs:
       - name: Verify APK
         run: |
           test -s app/build/outputs/apk/debug/app-debug.apk
+          file app/build/outputs/apk/debug/app-debug.apk
           ls -lh app/build/outputs/apk/debug/app-debug.apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
