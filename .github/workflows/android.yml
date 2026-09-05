@@ -25,19 +25,11 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
       - name: Download Go modules
         run: go mod download
-      - name: Prepare current Ebiten gomobile
-        run: |
-          go mod download github.com/ebitengine/gomobile@v0.0.0-20260211053402-5ba0159d437a
-          GMOD_DIR="$(go env GOPATH)/pkg/mod/github.com/ebitengine/gomobile@v0.0.0-20260211053402-5ba0159d437a"
-          test -d "$GMOD_DIR"
-          echo "EBITENMOBILE_GOMOBILE=$GMOD_DIR" >> "$GITHUB_ENV"
       - name: Generate Ebiten Android AAR
         env:
           GOTOOLCHAIN: local
         run: |
           go version
-          echo "Using gomobile module: $EBITENMOBILE_GOMOBILE"
-          test -d "$EBITENMOBILE_GOMOBILE/bind"
           go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.9 bind \
             -target android \
             -androidapi 23 \
