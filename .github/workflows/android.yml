@@ -1,0 +1,48 @@
+name: Ocean Catch Android
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.x'
+          cache: true
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Download Go modules
+        run: go mod download
+      - name: Generate Ebiten Android AAR
+        run: |
+          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.3 bind \
+            -target android \
+            -androidapi 23 \
+            -javapkg com.oceancatch.mobile \
+            -o app/libs/oceancatch.aar \
+            github.com/coding67-KR/ocean-catch/mobile
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Build debug APK
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OceanCatch-v1-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
