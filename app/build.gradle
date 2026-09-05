@@ -1,0 +1,9 @@
+plugins { id 'com.android.application' }
+
+android { namespace 'com.oceancatch'; compileSdk 35
+    defaultConfig { applicationId 'com.oceancatch'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0' }
+}
+
+repositories { google(); mavenCentral() }
+
+dependencies { implementation files('libs/oceancatch.aar') }
