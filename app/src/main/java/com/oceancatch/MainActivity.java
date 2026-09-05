@@ -2,15 +2,17 @@ package com.oceancatch;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
-import com.oceancatch.mobile.EbitenView;
-import go.Seq;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class MainActivity extends Activity {
-    @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        Seq.setContext(getApplicationContext());
-        View view = new EbitenView(this);
-        setContentView(view);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setNavigationBarColor(0xFF071B2A);
+        setContentView(new OceanView(this));
     }
 }
