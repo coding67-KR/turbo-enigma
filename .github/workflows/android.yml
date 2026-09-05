@@ -9,46 +9,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
-        with:
-          go-version: '1.27.1'
-          cache: true
-      - uses: actions/setup-java@v5
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install Android SDK packages
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
           yes | sdkmanager --licenses >/dev/null || true
-      - name: Download Go modules
-        run: go mod download
-      - name: Generate Ebiten Android AAR
-        env:
-          GOTOOLCHAIN: local
-        run: |
-          go version
-          go run github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@v2.9.9 bind \
-            -target android \
-            -androidapi 23 \
-            -javapkg com.oceancatch.mobile \
-            -o app/libs/oceancatch.aar \
-            ./mobile
-      - name: Install Gradle
+
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
+
       - name: Build debug APK
-        run: gradle --no-daemon :app:assembleDebug
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
       - name: Verify APK
         run: |
           test -s app/build/outputs/apk/debug/app-debug.apk
           file app/build/outputs/apk/debug/app-debug.apk
           ls -lh app/build/outputs/apk/debug/app-debug.apk
-      - name: Upload APK
+
+      - name: Build release APK
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: OceanCatch-v1-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: OceanCatch-v2-APKs
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/release/app-release-unsigned.apk
